@@ -1,0 +1,307 @@
+SET NAMES 'utf8';
+
+DROP DATABASE IF EXISTS `idukaan`;
+-- Set the default charset to utf8 for internationalization, use case-insensitive (ci) collation
+CREATE DATABASE IF NOT EXISTS `idukaan` DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+USE `idukaan`;
+
+CREATE TABLE master_currencies (
+  id_currency SMALLINT NOT NULL,
+  currency_name varchar(80) not NULL,
+  PRIMARY KEY (id_currency)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE master_language (
+  id_language SMALLINT NOT NULL,
+  str_language varchar(80) not NULL,
+  PRIMARY KEY (id_language)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE master_services (
+  id_service VARCHAR(40) NOT NULL,
+  id_sub_service VARCHAR(40) NOT NULL,
+  id_initiator_user_type VARCHAR(40) NOT NULL,
+  id_service_desc VARCHAR(40) NOT NULL,
+  id_service_status VARCHAR(40) NOT NULL,
+  id_is_financial VARCHAR(40) NOT NULL,
+  id_currency SMALLINT NOT NULL,
+  PRIMARY KEY (id_service)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE master_web_roles(
+  id_roles VARCHAR(40) NOT NULL,
+  id_category VARCHAR(40) NOT NULL,
+  PRIMARY KEY (id_roles)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+
+CREATE TABLE master_domains(
+  id_domain VARCHAR(40) NOT NULL,
+  str_domain_name VARCHAR(40) NOT NULL,
+  id_user_type VARCHAR(40) NOT NULL,
+  PRIMARY KEY (id_domain)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE master_categories(
+  id_categories VARCHAR(40) NOT NULL,
+  str_category_name VARCHAR(40) NOT NULL,
+  id_domain VARCHAR(40) NOT NULL,
+  id_category_owner VARCHAR(40) NOT NULL,
+  CONSTRAINT id_domain_fx FOREIGN KEY (id_domain) REFERENCES master_domains(id_domain),
+  PRIMARY KEY (id_categories)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE master_grades(
+  id_grades VARCHAR(40) NOT NULL,
+  str_grade_name VARCHAR(40) NOT NULL,
+  id_category VARCHAR(40) NOT NULL,
+  CONSTRAINT id_category_fx FOREIGN KEY (id_category) REFERENCES master_categories(id_categories),
+  PRIMARY KEY (id_grades)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE master_services_grades(
+  id_service_grade VARCHAR(40) NOT NULL,
+  id_bearer VARCHAR(40) NOT NULL,
+  id_service VARCHAR(40) NOT NULL,
+  id_grades VARCHAR(40) NOT NULL,
+  id_types VARCHAR(40) NOT NULL,
+  CONSTRAINT id_grades_fx FOREIGN KEY (id_grades) REFERENCES master_grades(id_grades),
+  CONSTRAINT id_service_fx FOREIGN KEY (id_service) REFERENCES master_services(id_service),
+  PRIMARY KEY (id_service_grade)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE user_limits(
+  id_limits VARCHAR(40) NOT NULL,
+  id_grades VARCHAR(40) NOT NULL,
+  limit_name VARCHAR(40) NOT NULL,
+  id_currency SMALLINT NOT NULL,
+  max_balance   INT     NOT NULL,
+  min_residual_balance  INT     NOT NULL,
+  min_txn_amount INT     NOT NULL,
+  max_txn_amount INT     NOT NULL,
+  id_created_by INT,
+  id_modified_by INT,
+  date_created_on DATE,
+  date_modified_on DATE,
+  CONSTRAINT id_grade_ul_fx FOREIGN KEY (id_grades) REFERENCES master_grades(id_grades),
+  CONSTRAINT id_currency_ul_fx FOREIGN KEY (id_currency) REFERENCES master_currencies(id_currency),
+  PRIMARY KEY (id_limits)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+CREATE TABLE user_limit_class(
+  id_limits_class VARCHAR(40) NOT NULL,
+  id_limits VARCHAR(40) NOT NULL,
+  id_bearer VARCHAR(40) NOT NULL,
+  id_service VARCHAR(40) NOT NULL,
+  id_types VARCHAR(40) NOT NULL,
+  CONSTRAINT id_limits_fx FOREIGN KEY (id_limits) REFERENCES user_limits(id_limits),
+  CONSTRAINT id_service_lc_fx FOREIGN KEY (id_service) REFERENCES master_services(id_service),
+  PRIMARY KEY (id_limits_class)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE user_limit_defi(
+  id_limits_class VARCHAR(40) NOT NULL,
+  type VARCHAR(40) NOT NULL,
+  count INT     NOT NULL,
+  amount  INT     NOT NULL,
+  CONSTRAINT id_limits_class_fx FOREIGN KEY (id_limits_class) REFERENCES user_limit_class(id_limits_class)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE roles(
+  id_roles VARCHAR(40) NOT NULL,
+  str_role_name VARCHAR(40) NOT NULL,
+  str_role_type VARCHAR(40) NOT NULL,
+  id_currency SMALLINT NOT NULL,
+  CONSTRAINT id_currency_fx FOREIGN KEY (id_currency) REFERENCES master_currencies(id_currency),
+  PRIMARY KEY (id_roles)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE user_roles(
+  id_roles VARCHAR(40) NOT NULL,
+  id_service_roles VARCHAR(40) NOT NULL,
+    id_created_by INT,
+  id_modified_by INT,
+  date_created_on DATE,
+  date_modified_on DATE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+CREATE TABLE users (
+  id_user    INT     UNSIGNED NOT NULL AUTO_INCREMENT,
+                           -- 16-bit unsigned int in the range of [0, 2,147,483,647]
+  str_first_name  VARCHAR(100)  ,
+  str_last_name   VARCHAR(100)  ,
+  str_middle_name   VARCHAR(100)  ,
+  str_login_id VARCHAR(40) ,
+  str_password VARCHAR(100),
+  str_grade VARCHAR(40) NOT NULL,
+  str_user_type VARCHAR(40) NOT NULL,
+  id_parent INT,
+  id_owner INT,
+  date_date_of_birth DATE,
+  str_gender VARCHAR(40),
+  date_last_login DATE,
+  str_status VARCHAR(10),
+  str_email VARCHAR(40),
+  str_contact VARCHAR(40),
+  str_contact_person VARCHAR(100),
+  str_msisdn VARCHAR(20),
+  id_created_by INT,
+  id_modified_by INT,
+  date_created_on DATE,
+  date_modified_on DATE,
+  str_address VARCHAR(100),
+  str_country VARCHAR(40),
+  str_prefix VARCHAR(40),
+  str_web_roles VARCHAR(40),
+  str_agent_code  VARCHAR(40),
+  str_unique_id VARCHAR(100),
+  str_field1_name VARCHAR(40),
+  str_field1_value VARCHAR(100),
+  str_field2_name VARCHAR(40),
+  str_field2_value VARCHAR(100),
+  str_field3_name VARCHAR(40),
+  str_field3_value VARCHAR(100),
+  str_field4_name VARCHAR(40),
+  str_field4_value VARCHAR(100),
+  str_field5_name VARCHAR(40),
+  str_field5_value VARCHAR(100),
+  str_field6_name VARCHAR(40),
+  str_field6_value VARCHAR(100),
+  str_field7_name VARCHAR(40),
+  str_field7_value VARCHAR(100),
+  str_field8_name VARCHAR(40),
+  str_field8_value VARCHAR(100),
+  str_field9_name VARCHAR(40),
+  str_field9_value VARCHAR(100),
+  str_field10_name VARCHAR(40),
+  str_field10_value VARCHAR(100),
+  id_language SMALLINT,
+  PRIMARY KEY (id_user),
+  CONSTRAINT id_language_fx FOREIGN KEY (id_language) REFERENCES master_language(id_language),
+  CONSTRAINT id_roles_web_fx FOREIGN KEY (str_web_roles) REFERENCES master_web_roles(id_roles)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ 
+create table users_wallet
+(
+ id_wallet    INT     UNSIGNED NOT NULL AUTO_INCREMENT,
+ id_user      INT     UNSIGNED NOT NULL ,
+ id_grade   VARCHAR(40),
+ id_limits     VARCHAR(40),
+ id_role     VARCHAR(40),
+ id_created_by INT,
+ id_modified_by INT,
+ date_created_on DATE,
+ date_modified_on DATE,
+ PRIMARY KEY (id_wallet),
+ CONSTRAINT id_user_fx FOREIGN KEY (id_user) REFERENCES users(id_user) ON DELETE RESTRICT ON UPDATE CASCADE,
+ CONSTRAINT id_role_uw_fx FOREIGN KEY (id_role) REFERENCES roles(id_roles),
+ CONSTRAINT id_limits_uw_fx FOREIGN KEY (id_limits) REFERENCES user_limits(id_limits)
+ 
+        -- Cannot delete parent record if there is any matching child record
+        -- Update the matching child records if parent record is updated
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+create table user_balance 
+(
+ id_wallet    INT    UNSIGNED NOT NULL,
+ int_balance   INT     NOT NULL,
+ int_previous_balance  INT     NOT NULL,
+ id_last_transfer_id   INT ,
+ date_last_transfer_id     DATE,
+ CONSTRAINT id_wallet_fx FOREIGN KEY (id_wallet) REFERENCES users_wallet(id_wallet) ON DELETE RESTRICT ON UPDATE CASCADE
+        -- Cannot delete parent record if there is any matching child record
+        -- Update the matching child records if parent record is updated
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+create table users_barred_suspended
+(
+ id_barred_suspended      INT     UNSIGNED NOT NULL ,
+ id_user   INT     UNSIGNED NOT NULL ,
+ id_created_by INT,
+ id_modified_by INT,
+ date_created_on DATE,
+ date_modified_on DATE,
+ id_reactivated_by INT,
+ date_reactivated_on_on DATE,
+ id_type varchar(40),
+ id_sub_type varchar(40),
+ id_reason varchar(40),
+ id_reactivation_comment varchar(40),
+ PRIMARY KEY (id_barred_suspended),
+ CONSTRAINT id_user_bs_fx FOREIGN KEY (id_user) REFERENCES users(id_user) ON DELETE RESTRICT ON UPDATE CASCADE
+        -- Cannot delete parent record if there is any matching child record
+        -- Update the matching child records if parent record is updated
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+create table admin_trail
+(
+  id_admin_trail      INT     UNSIGNED NOT NULL ,
+  id_user   INT     UNSIGNED NOT NULL ,
+  str_field1_name VARCHAR(40),
+  str_field1_value VARCHAR(100),
+  str_field2_name VARCHAR(40),
+  str_field2_value VARCHAR(100),
+  str_field3_name VARCHAR(40),
+  str_field3_value VARCHAR(100),
+  str_field4_name VARCHAR(40),
+  str_field4_value VARCHAR(100),
+  str_field5_name VARCHAR(40),
+  str_field5_value VARCHAR(100),
+  str_field6_name VARCHAR(40),
+  str_field6_value VARCHAR(100),
+  remarks VARCHAR(40),
+  action VARCHAR(40),
+  id_created_by INT,
+  date_created_on DATE,
+  PRIMARY KEY (id_admin_trail)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+create table sentsms
+(
+  id_sms     INT     UNSIGNED NOT NULL ,
+  id_user   INT     UNSIGNED NOT NULL ,
+  str_msisdn VARCHAR(40),
+  id_status VARCHAR(40),
+  id_retry_count VARCHAR(40),
+  str_message VARCHAR(500),
+  id_created_by INT,
+  date_created_on DATE,
+  PRIMARY KEY (id_sms)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+create table transaction
+(
+  id_transaction     INT     UNSIGNED NOT NULL ,
+  id_user_payer   INT     UNSIGNED NOT NULL ,
+  id_user_payee   INT     UNSIGNED NOT NULL ,
+  str_msisdn_payer VARCHAR(40),
+  str_msisdn_payee VARCHAR(40),
+  id_transaction_status VARCHAR(40),
+  transaction_amount   INT     UNSIGNED NOT NULL ,
+  total_transaction_amount INT     UNSIGNED NOT NULL ,
+  id_limit_payer VARCHAR(40),
+  id_limit_payee VARCHAR(40),
+  id_currency  SMALLINT NOT NULL,
+  id_modified_by INT,
+  date_modified_on DATE,
+  id_created_by INT,
+  date_created_on DATE,
+  id_wallet_payee VARCHAR(40),
+  id_wallet_payer VARCHAR(40),
+  id_transaction_type VARCHAR(40),-- main ,servicecharge,commission
+  PRIMARY KEY (id_transaction)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
