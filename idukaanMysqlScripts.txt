@@ -116,7 +116,7 @@ CREATE TABLE roles(
   id_roles VARCHAR(40) NOT NULL,
   str_role_name VARCHAR(40) NOT NULL,
   str_role_type VARCHAR(40) NOT NULL,
-  id_currency SMALLINT NOT NULL,
+  id_currency SMALLINT NOT NULL, -- to be removed
   CONSTRAINT id_currency_fx FOREIGN KEY (id_currency) REFERENCES master_currencies(id_currency),
   PRIMARY KEY (id_roles)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -124,7 +124,7 @@ CREATE TABLE roles(
 CREATE TABLE user_roles(
   id_roles VARCHAR(40) NOT NULL,
   id_service_roles VARCHAR(40) NOT NULL,
-    id_created_by INT,
+  id_created_by INT,
   id_modified_by INT,
   date_created_on DATE,
   date_modified_on DATE
@@ -154,7 +154,7 @@ CREATE TABLE users (
   str_msisdn VARCHAR(20),
   id_created_by INT,
   id_modified_by INT,
-  date_created_on DATE,
+  date_created_on DATE, level 2 approval
   date_modified_on DATE,
   str_address VARCHAR(100),
   str_country VARCHAR(40),
@@ -295,12 +295,16 @@ create table transaction
   id_limit_payee VARCHAR(40),
   id_currency  SMALLINT NOT NULL,
   id_modified_by INT,
-  date_modified_on DATE,
-  id_created_by INT,
+  id_approved_by INT,
+  id_approved_on INT,
+  date_modified_on DATE, 
+  id_created_by INT,    
   date_created_on DATE,
   id_wallet_payee VARCHAR(40),
   id_wallet_payer VARCHAR(40),
-  id_transaction_type VARCHAR(40),-- main ,servicecharge,commission
+  id_payer_category VARCHAR(40),
+  id_payee_category VARCHAR(40),
+  id_transaction_type VARCHAR(40),
   PRIMARY KEY (id_transaction)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
